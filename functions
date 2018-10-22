@@ -15,8 +15,7 @@ install_rpms_master(){
 install_rpms_node(){
   create_yum_repo
   yum install epel-release -q -y
-  yum install bash-completion lvm2 device-mapper-persistent-data yum-utils wget rsync \
-  containernetworking-plugins runc ipset conntrack-tools socat ebtables bridge-utils -q -y
+  yum install bash-completion ipset conntrack-tools socat ebtables bridge-utils -q -y
   yum install kubernetes-node -q -y
 }
 
@@ -40,20 +39,11 @@ check_user(){
 }
 
 install_docker(){
-cat > /etc/yum.repos.d/docker-ce.repo <<EOF
-[docker-ce-stable]
-name=Docker CE Stable - $basearch
-baseurl=https://mirrors.ustc.edu.cn/docker-ce/linux/centos/7/x86_64/stable/
-enabled=1
-gpgcheck=1
-gpgkey=https://mirrors.ustc.edu.cn/docker-ce/linux/centos/gpg
-EOF
-
   better_echo "\033[32m setting up docker.\033[0m"
   if (rpm -qa |grep -q docker);then
     better_echo "docker has already installed"
     else
-    yum install docker -q -y
+    yum install docker containernetworking-plugins runc lvm2 device-mapper-persistent-data -q -y
     systemctl enable docker
   fi
   mkdir -p /etc/docker
