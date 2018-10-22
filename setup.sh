@@ -10,8 +10,8 @@ fi
 basedir=$(dirname $0)
 cd $basedir
 
-if [ -e fuctions ];then
-  . fuctions
+if [ -e functions ];then
+  . functions
   else
   echo -e "error,fuctions not found"
   exit 1
