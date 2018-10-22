@@ -20,6 +20,7 @@ fi
 
 pre_install_master(){
   rm -rf /etc/kubernetes/*
+  check_user
   install_rpms_master
   install_etcd
   keygen
