@@ -19,9 +19,8 @@ if [ -e functions ];then
 fi
 
 pre_install_master(){
-  create_yum_repo
+  install_rpms_master
   install_etcd
-  yum install kubernetes-master kubernetes-client -y
   keygen
   gen_kubeconfig
 }
@@ -37,9 +36,8 @@ install_master(){
 }
 
 install_node(){
+  install_rpms_node
   install_docker
-  create_yum_repo
-  yum install kubernetes-node -y
   config_kubelet
   config_kube_proxy
 }
