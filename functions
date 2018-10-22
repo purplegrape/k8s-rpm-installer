@@ -50,10 +50,10 @@ gpgkey=https://mirrors.ustc.edu.cn/docker-ce/linux/centos/gpg
 EOF
 
   better_echo "\033[32m setting up docker.\033[0m"
-  if (rpm -qa |grep -q docker-ce);then
-    better_echo "docker-ce has already installed"
+  if (rpm -qa |grep -q docker);then
+    better_echo "docker has already installed"
     else
-    yum install docker-ce -q -y
+    yum install docker -q -y
     systemctl enable docker
   fi
   mkdir -p /etc/docker
@@ -183,7 +183,7 @@ config_apiserver(){
   install -D -m 644 files/usr/lib/systemd/system/kube-apiserver.service /usr/lib/systemd/system/kube-apiserver.service
   systemctl daemon-reload
   systemctl enable kube-apiserver
-  systemctl start kube-apiserver
+  systemctl restart kube-apiserver
   sleep 5
 }
 
@@ -193,7 +193,7 @@ config_scheduler(){
   install -D -m 644 files/usr/lib/systemd/system/kube-scheduler.service /usr/lib/systemd/system/kube-scheduler.service
   systemctl daemon-reload
   systemctl enable kube-scheduler
-  systemctl start kube-scheduler
+  systemctl restart kube-scheduler
 }
 
 config_controller_manager(){
@@ -202,7 +202,7 @@ config_controller_manager(){
   install -D -m 644 files/usr/lib/systemd/system/kube-controller-manager.service /usr/lib/systemd/system/kube-controller-manager.service
   systemctl daemon-reload
   systemctl enable kube-controller-manager
-  systemctl start kube-controller-manager
+  systemctl restart kube-controller-manager
 }
 
 config_kubelet(){
@@ -217,7 +217,7 @@ EOF
   echo -e "ip_vs\nip_vs_rr\nip_vs_wrr\nip_vs_sh" > /etc/modules-load.d/ipvs.conf
   systemctl daemon-reload
   systemctl enable kubelet
-  systemctl start kubelet
+  systemctl restart kubelet
   sleep 3
 }
 
@@ -227,7 +227,7 @@ config_kube_proxy(){
   install -D -m 644 files/usr/lib/systemd/system/kube-proxy.service /usr/lib/systemd/system/kube-proxy.service
   systemctl daemon-reload
   systemctl enable kube-proxy
-  systemctl start kube-proxy
+  systemctl restart kube-proxy
   sleep 3
 }
 
