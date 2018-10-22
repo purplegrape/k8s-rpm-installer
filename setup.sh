@@ -12,12 +12,15 @@ cd $basedir
 
 if [ -e fuctions ];then
   . fuctions
+  else
+  echo -e "error,fuctions not found"
+  exit 1
 fi
 
 pre_install_master(){
-  yum_repo
-  yum install kubernetes-master kubernetes-client etcd -y
-  gen_CA
+  create_yum_repo
+  install_etcd
+  yum install kubernetes-master kubernetes-client -y
   keygen
   gen_kubeconfig
 }
@@ -25,30 +28,25 @@ pre_install_master(){
 install_master(){
   pre_install_master
   config_apiserver
+  create_clusterrolebinding
   config_scheduler
   config_controller_manager
-  create_clusterrolebinding
+  install_node
   post_install_master
 }
 
-post_install_master(){
-  start_apiserver
-  start_scheduler
-  start_controller_manager
-}
-
-pre_install_node(){
-  install_docker
-}
-
 install_node(){
-  yum_repo
+  install_docker
+  create_yum_repo
   yum install kubernetes-node -y
-}
-
-post_install_node(){
   config_kubelet
   config_kube_proxy
+}
+
+post_install_master(){
+  kubectl get cs
+  kubectl get svc
+  kubectl get nodes
 }
 
 case $1 in
