@@ -12,7 +12,7 @@ basedir=$(dirname $0)
 cd $basedir
 
 if [ -e functions ];then
-  . functions
+  . ./functions
   else
   echo -e "error,fuctions not found"
   exit 1
