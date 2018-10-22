@@ -1,0 +1,20 @@
+
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/kubernetes/kubernetes
+After=kube-apiserver.service
+Requires=kube-apiserver.service
+
+[Service]
+User=kube
+Group=kube
+EnvironmentFile=-/etc/sysconfig/kube-controller-manager
+PermissionsStartOnly=true
+ExecStartPre=-/usr/bin/mkdir -p /var/run/kubernetes
+ExecStartPre=-/usr/bin/chown -R kube:kube /var/run/kubernetes
+ExecStart=/usr/bin/kube-controller-manager $KUBE_CONTROLLER_MANAGER_ARGS
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
