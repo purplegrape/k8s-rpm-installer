@@ -5,19 +5,39 @@ better_echo(){
   echo -e "\033[31m## $count ##\033[33m" $1
 }
 
+create_yum_repo(){
+better_echo "\033[32m create yum repo.\033[0m"
+yum install centos-release-virt-common -y
+cat > /etc/yum.repos.d/kube.repo <<EOF
+[kubernetes110]
+name=kubernetes110
+baseurl=http://mirrors.ustc.edu.cn/centos/7/virt/x86_64/kubernetes110/
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization
+EOF
+}
+
 check_user(){
   better_echo "\033[32m checking user.\033[0m"
   getent group  kube > /dev/null || groupadd -r kube
   getent passwd kube > /dev/null || useradd -r -g kube -s /sbin/nologin -d / kube
 }
 
-
 install_docker(){
+cat > /etc/yum.repos.d/docker-ce.repo <<EOF
+[docker-ce-stable]
+name=Docker CE Stable - $basearch
+baseurl=https://mirrors.ustc.edu.cn/docker-ce/linux/centos/7/x86_64/stable/
+enabled=1
+gpgcheck=1
+gpgkey=https://mirrors.ustc.edu.cn/docker-ce/linux/centos/gpg
+EOF
+
   better_echo "\033[32m setting up docker.\033[0m"
   if (rpm -qa |grep -q docker-ce);then
     better_echo "docker-ce has already installed"
     else
-    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     yum install docker-ce -q -y
     systemctl enable docker
   fi
@@ -27,6 +47,13 @@ install_docker(){
   sleep 1
 }
 
+install_etcd(){
+  better_echo "\033[32m install etcd.\033[0m"
+  yum install etcd -y
+  rm -rf /var/lib/etcd/*
+  systemctl enable etcd
+  systemctl restart etcd
+}
 
 keygen_ca(){
   better_echo "\033[32m generate CA keys.\033[0m"
@@ -69,7 +96,7 @@ EOF
   popd
 }
 
-keygen_other(){
+keygen_user(){
   better_echo "\033[32m generate keys for user $1.\033[0m"
   mkdir -p /etc/kubernetes/pki
   username=$1
@@ -78,6 +105,16 @@ keygen_other(){
     openssl req -new -key $username.key -subj "/CN=$username" -out $username.csr
     openssl x509 -req -in $username.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 -out $username.crt
   popd
+}
+
+keygen(){
+  rm -rf /etc/kubernetes/pki
+  keygen_ca
+  keygen_apiserver
+  keygen_user admin
+  keygen_user kubelet
+  keygen_user kube-proxy
+  #keygen_user etcd
 }
 
 kubeconfig_local_admin(){
@@ -92,7 +129,7 @@ kubeconfig_local_admin(){
 }
 
 kubeconfig_user(){
-  better_echo "\033[32m generate kubeconfig.\033[0m"
+  better_echo "\033[32m generate kubeconfig for $1.\033[0m"
   username=$1
   CA_CERT="/etc/kubernetes/pki/ca.crt"
   CLIENT_CERT="/etc/kubernetes/pki/$username.crt"
@@ -110,4 +147,61 @@ kubeconfig_user(){
   kubectl config set-context default-system --cluster=default-cluster --user=$username
   kubectl config use-context default-system
 }
+
+gen_kubeconfig(){
+  kubeconfig_local_admin
+  kubeconfig_user admin
+  kubeconfig_user kubelet
+  kubeconfig_user kube-proxy
+}
+
+config_apiserver(){
+  better_echo "\033[32m config kube-apiserver.\033[0m"
+  install -D -m 644 files/etc/sysconfig/kube-apiserver /etc/sysconfig/kube-apiserver
+  install -D -m 644 files/usr/lib/systemd/system/kube-apiserver.service /usr/lib/systemd/system/kube-apiserver.service
+  systemctl daemon-reload
+  systemctl enable kube-apiserver
+  systemctl start kube-apiserver
+  sleep 5
+}
+
+config_scheduler(){
+  better_echo "\033[32m config kube-scheduler.\033[0m"
+  install -D -m 644 files/etc/sysconfig/kube-scheduler /etc/sysconfig/kube-scheduler
+  install -D -m 644 files/usr/lib/systemd/system/kube-scheduler.service /usr/lib/systemd/system/kube-scheduler.service
+  systemctl daemon-reload
+  systemctl enable kube-scheduler
+  systemctl start kube-scheduler
+}
+
+config_controller_manager(){
+  better_echo "\033[32m config kube-controller-manager.\033[0m"
+  install -D -m 644 files/etc/sysconfig/kube-controller-manager /etc/sysconfig/kube-controller-manager
+  install -D -m 644 files/usr/lib/systemd/system/kube-controller-manager.service /usr/lib/systemd/system/kube-controller-manager.service
+  systemctl daemon-reload
+  systemctl enable kube-controller-manager
+  systemctl start kube-controller-manager
+}
+
+config_kubelet(){
+  better_echo "\033[32m config kubelet.\033[0m"
+  install -D -m 644 files/etc/sysconfig/kubelet /etc/sysconfig/kubelet
+  install -D -m 644 files/usr/lib/systemd/system/kubelet.service /usr/lib/systemd/system/kubelet.service
+  systemctl daemon-reload
+  systemctl enable kubelet
+  systemctl start kubelet
+  sleep 3
+}
+
+config_kube_proxy(){
+  better_echo "\033[32m config kube-proxy.\033[0m"
+   install -D -m 644 files/etc/sysconfig/kube-proxy /etc/sysconfig/kube-proxy
+  install -D -m 644 files/usr/lib/systemd/system/kube-proxy.service /usr/lib/systemd/system/kube-proxy.service
+  systemctl daemon-reload
+  systemctl enable kube-proxy
+  systemctl start kube-proxy
+  sleep 3
+}
+
+
 
