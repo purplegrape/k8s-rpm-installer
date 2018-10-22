@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+
+better_echo(){
+  count=$[$count + 1]
+  echo -e "\033[31m## $count ##\033[33m" $1
+}
+
+check_user(){
+  better_echo "\033[32m checking user.\033[0m"
+  getent group  kube > /dev/null || groupadd -r kube
+  getent passwd kube > /dev/null || useradd -r -g kube -s /sbin/nologin -d / kube
+}
+
+
+install_docker(){
+  better_echo "\033[32m setting up docker.\033[0m"
+  if (rpm -qa |grep -q docker-ce);then
+    better_echo "docker-ce has already installed"
+    else
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    yum install docker-ce -q -y
+    systemctl enable docker
+  fi
+  mkdir -p /etc/docker
+  echo -e "{\n\t\"registry-mirrors\": [\"https://docker.mirrors.ustc.edu.cn\"]\n}" > /etc/docker/daemon.json
+  systemctl restart docker
+  sleep 1
+}
+
+
+keygen_ca(){
+  better_echo "\033[32m generate CA keys.\033[0m"
+  mkdir -p /etc/kubernetes/pki
+  pushd /etc/kubernetes/pki
+    openssl genrsa -out ca.key 4096
+    openssl req -x509 -new -nodes -key ca.key -subj "/CN=k8s-cluster" -days 3650 -out ca.crt
+  popd
+}
+
+
+keygen_apiserver(){
+  better_echo "\033[32m generate apiserver keys.\033[0m"
+  mkdir -p /etc/kubernetes/pki
+  cat > /etc/kubernetes/pki/openssl.cnf <<EOF
+  [req]
+  req_extensions = v3_req
+  distinguished_name = req_distinguished_name
+  [req_distinguished_name]
+  [ v3_req ]
+  basicConstraints = CA:FALSE
+  keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+  subjectAltName = @alt_names
+  [alt_names]
+  DNS.1 = kubernetes
+  DNS.2 = kubernetes.default
+  DNS.3 = kubernetes.default.svc
+  DNS.4 = kubernetes.default.svc.cluster.local
+  DNS.5 = k8s-master
+  DNS.6 = $HOSTNAME
+  IP.1 = $(ifdata -pa eth0)
+  IP.2 = 10.254.0.1
+EOF
+
+  pushd /etc/kubernetes/pki
+    openssl genrsa -out apiserver.key 4096
+    openssl req -new -key apiserver.key -subj "/CN=k8s-master" -config openssl.cnf -out apiserver.csr
+    openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 \
+      -extensions v3_req -extfile openssl.cnf -out apiserver.crt
+  popd
+}
+
+keygen_other(){
+  better_echo "\033[32m generate keys for user $1.\033[0m"
+  mkdir -p /etc/kubernetes/pki
+  username=$1
+  pushd /etc/kubernetes/pki
+    openssl genrsa -out $username.key 4096
+    openssl req -new -key $username.key -subj "/CN=$username" -out $username.csr
+    openssl x509 -req -in $username.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 -out $username.crt
+  popd
+}
+
+kubeconfig_local_admin(){
+  better_echo "\033[32m generate local admin kubeconfig.\033[0m"
+  mkdir -p /root/.kube/
+  > /root/.kube/config
+  unset KUBECONFIG
+  export KUBECONFIG=/root/.kube/config
+  kubectl config set-cluster default-cluster --server=http://127.0.0.1:8080 --insecure-skip-tls-verify=true
+  kubectl config set-context default-system --cluster=default-cluster --user=cluster-admin --namespace=default
+  kubectl config use-context default-system
+}
+
+kubeconfig_user(){
+  better_echo "\033[32m generate kubeconfig.\033[0m"
+  username=$1
+  CA_CERT="/etc/kubernetes/pki/ca.crt"
+  CLIENT_CERT="/etc/kubernetes/pki/$username.crt"
+  CLIENT_KEY="/etc/kubernetes/pki/$username.key"
+
+  TOKEN=$(dd if=/dev/urandom bs=128 count=1 2>/dev/null | base64 | tr -d "=+/[:space:]" | dd bs=32 count=1 2>/dev/null)
+  MASTER_IP=$(ifdata -pa eth0)
+
+  mkdir -p /etc/kubernetes
+  > /etc/kubernetes/$username.yaml
+  unset KUBECONFIG
+  export KUBECONFIG=/etc/kubernetes/$username.yaml
+  kubectl config set-cluster default-cluster --server=https://$MASTER_IP:6443 --certificate-authority=$CA_CERT --embed-certs=true
+  kubectl config set-credentials $username --client-certificate=$CLIENT_CERT --client-key=$CLIENT_KEY --embed-certs=true --token=$TOKEN
+  kubectl config set-context default-system --cluster=default-cluster --user=$username
+  kubectl config use-context default-system
+}
+
