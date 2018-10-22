@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -e
 set -x
 
 if [ $EUID != 0 ];then
