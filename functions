@@ -14,7 +14,7 @@ install_rpms_master(){
 
 install_rpms_node(){
   create_yum_repo
-  yum install epel-relese -q -y
+  yum install epel-release -q -y
   yum install bash-completion lvm2 device-mapper-persistent-data yum-utils wget rsync \
   containernetworking-plugins runc ipset conntrack-tools socat ebtables bridge-utils -q -y
   yum install kubernetes-node -q -y
