@@ -19,6 +19,7 @@ if [ -e functions ];then
 fi
 
 pre_install_master(){
+  rm -rf /etc/kubernetes/*
   install_rpms_master
   install_etcd
   keygen
