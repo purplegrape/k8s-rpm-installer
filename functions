@@ -2,7 +2,7 @@
 
 better_echo(){
   count=$[$count + 1]
-  echo -e "\033[31m## $count ##\033[33m" $1
+  echo -e "\033[31m## STEP $count ##\033[33m" $1
 }
 
 create_yum_repo(){
@@ -64,7 +64,6 @@ keygen_ca(){
   popd
 }
 
-
 keygen_apiserver(){
   better_echo "\033[32m generate apiserver keys.\033[0m"
   mkdir -p /etc/kubernetes/pki
@@ -118,7 +117,7 @@ keygen(){
 }
 
 kubeconfig_local_admin(){
-  better_echo "\033[32m generate local admin kubeconfig.\033[0m"
+  better_echo "\033[32m generate kubeconfig for local admin.\033[0m"
   mkdir -p /root/.kube/
   > /root/.kube/config
   unset KUBECONFIG
@@ -184,9 +183,15 @@ config_controller_manager(){
 }
 
 config_kubelet(){
+cat > /etc/sysctl.d/k8s.conf <<EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+  sysctl --system
   better_echo "\033[32m config kubelet.\033[0m"
   install -D -m 644 files/etc/sysconfig/kubelet /etc/sysconfig/kubelet
   install -D -m 644 files/usr/lib/systemd/system/kubelet.service /usr/lib/systemd/system/kubelet.service
+  echo -e "ip_vs\nip_vs_rr\nip_vs_wrr\nip_vs_sh" > /etc/modules-load.d/ipvs.conf
   systemctl daemon-reload
   systemctl enable kubelet
   systemctl start kubelet
@@ -202,6 +207,4 @@ config_kube_proxy(){
   systemctl start kube-proxy
   sleep 3
 }
-
-
 
