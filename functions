@@ -169,6 +169,14 @@ gen_kubeconfig(){
   kubeconfig_user kube-proxy
 }
 
+create_clusterrolebinding(){
+  better_echo "\033[32m create clusterrolebonding.\033[0m"
+  export KUBECONFIG=/root/.kube/config
+  kubectl create clusterrolebinding mybonding-node --clusterrole=system:node --user=kubelet --group=system:node
+  kubectl create clusterrolebinding mybonding-node-proxier --clusterrole=system:node-proxier --user=kube-proxy
+  kubectl create clusterrolebinding mybonding-admin --clusterrole=cluster-admin --user=admin
+}
+
 config_apiserver(){
   better_echo "\033[32m config kube-apiserver.\033[0m"
   install -D -m 644 files/etc/sysconfig/kube-apiserver /etc/sysconfig/kube-apiserver
