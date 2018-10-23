@@ -41,6 +41,7 @@ install_rpms_node(){
   yum install epel-release -q -y
   yum install bash-completion bridge-utils containernetworking-plugins conntrack-tools ebtables ipset socat -q -y
   yum install kubernetes-node -q -y
+  echo -e "\033[32m OK \033[0m"
 }
 
 install_docker(){
