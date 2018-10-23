@@ -46,12 +46,18 @@ install_node(){
 post_install_master(){
   echo -e "\033[32m waiting for services become ready.\033[0m"
   sleep 1
+  
+  echo
   echo -e "\033[32m show kubernetes master service.\033[0m"
   kubectl get svc
   sleep 1
+  
+  echo
   echo -e "\033[32m show kubernetes master health.\033[0m"
   kubectl get cs
   sleep 1
+  
+  echo
   echo -e "\033[32m show kubernetes nodes.\033[0m"
   kubectl get nodes -o wide
 
