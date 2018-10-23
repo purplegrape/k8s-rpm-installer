@@ -152,7 +152,7 @@ kubeconfig_user(){
   mkdir -p /etc/kubernetes
   > /etc/kubernetes/$username.yaml
   unset KUBECONFIG
-  export KUBECONFIG=/etc/kubernetes/$username.yaml
+  export KUBECONFIG=/etc/kubernetes/$username.kubeconfig
   kubectl config set-cluster default-cluster --server=https://$MASTER_IP:6443 --certificate-authority=$CA_CERT --embed-certs=true
   kubectl config set-credentials $username --client-certificate=$CLIENT_CERT --client-key=$CLIENT_KEY --embed-certs=true --token=$TOKEN
   kubectl config set-context default-system --cluster=default-cluster --user=$username
