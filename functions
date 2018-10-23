@@ -243,7 +243,7 @@ cleanup(){
   systemctl stop etcd || true
   rm -rf /etc/kubernetes /etc/sysconfig/kube*
   rm -rf /var/lib/etcd/* /var/lib/kubelet /var/run/kubernetes
-  rm -rf /usr/lib/systemd/system/kube* /usr/lib/systemd/system/containerd.service /usr/lib/systemd/system/coredns.service
+  rm -rf /usr/lib/systemd/system/kube*
   systemctl daemon-reload
   clean_iptables_rules
 }
