@@ -119,7 +119,7 @@ keygen(){
   keygen_user kube-scheduler
   keygen_user kubelet
   keygen_user kube-proxy
-  #keygen_user etcd
+  keygen_user etcd
 }
 
 kubeconfig_local_admin(){
