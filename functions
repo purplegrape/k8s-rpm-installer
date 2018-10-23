@@ -150,7 +150,7 @@ kubeconfig_user(){
   MASTER_IP=$(ifdata -pa eth0)
 
   mkdir -p /etc/kubernetes
-  > /etc/kubernetes/$username.yaml
+  > /etc/kubernetes/$username.kubeconfig
   unset KUBECONFIG
   export KUBECONFIG=/etc/kubernetes/$username.kubeconfig
   kubectl config set-cluster default-cluster --server=https://$MASTER_IP:6443 --certificate-authority=$CA_CERT --embed-certs=true
