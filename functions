@@ -205,11 +205,13 @@ cat > /etc/sysctl.d/k8s.conf <<EOF
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 EOF
-  sysctl --system
+  sysctl -q --system
   better_echo "\033[32m config kubelet.\033[0m"
   mkdir -p /var/lib/kubelet
   install -D -m 644 files/etc/sysconfig/kubelet /etc/sysconfig/kubelet
   install -D -m 644 files/usr/lib/systemd/system/kubelet.service /usr/lib/systemd/system/kubelet.service
+  install -D -m 644 files/etc/cni/net.d/20-loopback.conf /etc/cni/net.d/20-loopback.conf
+  install -D -m 644 files/etc/cni/net.d/30-cni-bridge.conf /etc/cni/net.d/30-cni-bridge.conf 
   echo -e "ip_vs\nip_vs_rr\nip_vs_wrr\nip_vs_sh" > /etc/modules-load.d/ipvs.conf
   systemctl daemon-reload
   systemctl enable kubelet
@@ -219,7 +221,7 @@ EOF
 
 config_kube_proxy(){
   better_echo "\033[32m config kube-proxy.\033[0m"
-   install -D -m 644 files/etc/sysconfig/kube-proxy /etc/sysconfig/kube-proxy
+  install -D -m 644 files/etc/sysconfig/kube-proxy /etc/sysconfig/kube-proxy
   install -D -m 644 files/usr/lib/systemd/system/kube-proxy.service /usr/lib/systemd/system/kube-proxy.service
   systemctl daemon-reload
   systemctl enable kube-proxy
@@ -247,7 +249,7 @@ cleanup(){
   systemctl stop kube-scheduler kube-controller-manager || true
   systemctl stop kube-apiserver || true
   systemctl stop etcd || true
-  rm -rf /etc/kubernetes /etc/sysconfig/kube*
+  rm -rf /etc/kubernetes /etc/sysconfig/kube* /etc/cni/net.d
   rm -rf /var/lib/etcd/* /var/lib/kubelet /var/run/kubernetes
   rm -rf /usr/lib/systemd/system/kube*
   systemctl daemon-reload
