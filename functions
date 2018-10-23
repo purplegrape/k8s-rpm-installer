@@ -213,7 +213,7 @@ EOF
     systemctl restart kubelet
     sleep 3
     else
-    echo -e "\033[31mWarning:\033[0m\nBefore start kubelet,\nplease copy the following files from kubernetes master"
+    echo -e "\033[31mWarning:\033[0m\nBefore start kubelet,please copy the following files from kubernetes master"
     echo -e "\033[32m/etc/kubernetes/kubelet.yaml\033[0m"
     exit 1
   fi
