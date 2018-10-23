@@ -209,33 +209,48 @@ EOF
   install -D -m 644 files/usr/lib/systemd/system/kubelet.service /usr/lib/systemd/system/kubelet.service
   install -D -m 644 files/etc/cni/net.d/20-loopback.conf /etc/cni/net.d/20-loopback.conf
   install -D -m 644 files/etc/cni/net.d/30-cni-bridge.conf /etc/cni/net.d/30-cni-bridge.conf 
-  echo -e "ip_vs\nip_vs_rr\nip_vs_wrr\nip_vs_sh" > /etc/modules-load.d/ipvs.conf
   systemctl daemon-reload
   systemctl enable kubelet
-  systemctl restart kubelet
-  sleep 3
+  if [ -f /etc/kubernetes/kubelet.yaml ];then
+    systemctl restart kubelet
+    sleep 3
+    else
+    echo -e "\033[31mWarning:\033[0m\nBefore start kubelet,\nplease copy the following files from kubernetes master"
+    echo -e "\033[32m/etc/kubernetes/kubelet.yaml\033[0m"
+    exit 1
+  fi
 }
 
 config_kube_proxy(){
   better_echo "\033[32m config kube-proxy.\033[0m"
   install -D -m 644 files/etc/sysconfig/kube-proxy /etc/sysconfig/kube-proxy
   install -D -m 644 files/usr/lib/systemd/system/kube-proxy.service /usr/lib/systemd/system/kube-proxy.service
+  echo -e "ip_vs\nip_vs_rr\nip_vs_wrr\nip_vs_sh" > /etc/modules-load.d/ipvs.conf
   systemctl daemon-reload
   systemctl enable kube-proxy
-  systemctl restart kube-proxy
-  sleep 3
+  if [ -f /etc/kubernetes/kube-proxy.yaml ];then
+    systemctl restart kube-proxy
+    sleep 3
+    else
+    echo -e "\033[31mWarning:\033[0m\nBefore start kube-proxy,\nplease copy the following files from kubernetes master"
+    echo -e "\033[32m/etc/kubernetes/kube-proxy.yaml\033[0m"
+    exit 1
+  fi
 }
 
 clean_iptables_rules(){
   iptables -t nat -F
   iptables -t nat -X
   iptables -t nat -Z
-  iptables -F
-  iptables -X
-  iptables -Z
+  
   iptables -P INPUT ACCEPT
   iptables -P FORWARD ACCEPT
   iptables -P OUTPUT ACCEPT
+  
+  iptables -F
+  iptables -X
+  iptables -Z
+  
   iptables-save > /etc/sysconfig/iptables
   sysctl -q -w net.ipv4.ip_forward=1
 }
