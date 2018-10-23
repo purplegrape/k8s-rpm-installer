@@ -40,14 +40,11 @@ check_user(){
 
 install_docker(){
   better_echo "\033[32m setting up docker.\033[0m"
-  if (rpm -qa |grep -q docker);then
-    better_echo "docker has already installed"
-    else
-    yum install docker lvm2 device-mapper-persistent-data -q -y
-    systemctl enable docker
-  fi
+  rm -rf /etc/docker
   mkdir -p /etc/docker
   echo -e "{\n\t\"registry-mirrors\": [\"https://docker.mirrors.ustc.edu.cn\"]\n}" > /etc/docker/daemon.json
+  yum install docker lvm2 device-mapper-persistent-data -q -y
+  systemctl enable docker
   systemctl restart docker
   sleep 1
 }
@@ -230,7 +227,6 @@ config_kube_proxy(){
 }
 
 clean_iptables_rules(){
-  better_echo "\033[32m flush iptables rules.\033[0m"
   iptables -t nat -F
   iptables -t nat -X
   iptables -t nat -Z
@@ -245,6 +241,7 @@ clean_iptables_rules(){
 }
 
 cleanup(){
+  better_echo "\033[32m cleanup services and files.\033[0m"
   systemctl stop kubelet kube-proxy || true
   systemctl stop kube-scheduler kube-controller-manager || true
   systemctl stop kube-apiserver || true
