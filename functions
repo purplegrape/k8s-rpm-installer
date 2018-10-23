@@ -205,6 +205,7 @@ net.bridge.bridge-nf-call-iptables = 1
 EOF
   sysctl --system
   better_echo "\033[32m config kubelet.\033[0m"
+  mkdir -p /var/lib/kubelet
   install -D -m 644 files/etc/sysconfig/kubelet /etc/sysconfig/kubelet
   install -D -m 644 files/usr/lib/systemd/system/kubelet.service /usr/lib/systemd/system/kubelet.service
   echo -e "ip_vs\nip_vs_rr\nip_vs_wrr\nip_vs_sh" > /etc/modules-load.d/ipvs.conf
