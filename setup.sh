@@ -44,8 +44,15 @@ install_node(){
 }
 
 post_install_master(){
-  kubectl get cs
+  echo -e "\033[32m waiting for services become ready.\033[0m"
+  sleep 1
+  echo -e "\033[32m show kubernetes master service.\033[0m"
   kubectl get svc
+  sleep 1
+  echo -e "\033[32m show kubernetes master health.\033[0m"
+  kubectl get cs
+  sleep 1
+  echo -e "\033[32m show kubernetes nodes.\033[0m"
   kubectl get nodes
 
   # By default, your cluster will not schedule pods on the master for security reasons. 
