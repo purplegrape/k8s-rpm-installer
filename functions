@@ -13,7 +13,6 @@ check_user(){
 }
 
 create_yum_repo(){
-better_echo "\033[32m create yum repo for kubernetes.\033[0m"
 yum install centos-release-virt-common epel-release -y
 cat > /etc/yum.repos.d/kube.repo <<EOF
 [kubernetes110]
@@ -23,7 +22,6 @@ enabled=1
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization
 EOF
-echo -e "\033[32m OK \033[0m"
 }
 
 install_rpms_master(){
