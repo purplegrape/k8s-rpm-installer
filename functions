@@ -2,7 +2,7 @@
 
 better_echo(){
   count=$[$count + 1]
-  echo -e "\033[31m## STEP $count ##\033[33m" $1
+  echo -e "\033[31m## Step $count ##\033[33m" $1
 }
 
 install_rpms_master(){
