@@ -224,12 +224,12 @@ EOF
   install -D -m 644 files/etc/cni/net.d/30-cni-bridge.conf /etc/cni/net.d/30-cni-bridge.conf 
   systemctl daemon-reload
   systemctl enable kubelet
-  if [ -f /etc/kubernetes/kubelet.yaml ];then
+  if [ -f /etc/kubernetes/kubelet.kubeconfig ];then
     systemctl restart kubelet
     sleep 5
     else
     echo -e "\033[31mWarning:\033[0m\nBefore start kubelet,please copy the following file from kubernetes master"
-    echo -e "\033[32m/etc/kubernetes/kubelet.yaml\033[0m"
+    echo -e "\033[32m/etc/kubernetes/kubelet.kubeconfig\033[0m"
     exit 1
   fi
   echo -e "\033[32m OK \033[0m"
@@ -242,12 +242,12 @@ config_kube_proxy(){
   echo -e "ip_vs\nip_vs_rr\nip_vs_wrr\nip_vs_sh" > /etc/modules-load.d/ipvs.conf
   systemctl daemon-reload
   systemctl enable kube-proxy
-  if [ -f /etc/kubernetes/kube-proxy.yaml ];then
+  if [ -f /etc/kubernetes/kube-proxy.kubeconfig ];then
     systemctl restart kube-proxy
     sleep 5
     else
     echo -e "\033[31mWarning:\033[0m\nBefore start kube-proxy,\nplease copy the following file from kubernetes master"
-    echo -e "\033[32m/etc/kubernetes/kube-proxy.yaml\033[0m"
+    echo -e "\033[32m/etc/kubernetes/kube-proxy.kubeconfig\033[0m"
     exit 1
   fi
   echo -e "\033[32m OK \033[0m"
