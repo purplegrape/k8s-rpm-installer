@@ -47,6 +47,20 @@ post_install_master(){
   kubectl get cs
   kubectl get svc
   kubectl get nodes
+
+  # By default, your cluster will not schedule pods on the master for security reasons. 
+  # If you want to be able to schedule pods on the master, 
+  # e.g. for a single-machine Kubernetes cluster for development, run:
+  # kubectl taint nodes --all node-role.kubernetes.io/master-
+  
+  #kubectl label node $HOSTNAME node-role.kubernetes.io/master=master
+  #kubectl patch node $HOSTNAME -p '{"spec":{"unschedulable":true}}'
+  
+  echo
+  echo
+  better_echo "\033[32m Good job !! If you see this message, your kubernetes installation has finished.\033[0m"
+  echo
+  echo
 }
 
 case $1 in
