@@ -229,7 +229,7 @@ EOF
     systemctl restart kubelet
     sleep 5
     else
-    echo -e "\033[31mWarning:\033[0m\nBefore start kubelet,please copy the following files from kubernetes master"
+    echo -e "\033[31mWarning:\033[0m\nBefore start kubelet,please copy the following file from kubernetes master"
     echo -e "\033[32m/etc/kubernetes/kubelet.yaml\033[0m"
     exit 1
   fi
@@ -247,7 +247,7 @@ config_kube_proxy(){
     systemctl restart kube-proxy
     sleep 5
     else
-    echo -e "\033[31mWarning:\033[0m\nBefore start kube-proxy,\nplease copy the following files from kubernetes master"
+    echo -e "\033[31mWarning:\033[0m\nBefore start kube-proxy,\nplease copy the following file from kubernetes master"
     echo -e "\033[32m/etc/kubernetes/kube-proxy.yaml\033[0m"
     exit 1
   fi
