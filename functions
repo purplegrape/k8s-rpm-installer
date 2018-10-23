@@ -10,6 +10,7 @@ install_rpms_master(){
   yum install epel-release -q -y
   yum install bash-completion moreutils openssl -q -y
   yum install kubernetes-master kubernetes-client -q -y
+  echo -e "\033[32m OK \033[0m"
 }
 
 install_rpms_node(){
@@ -30,12 +31,14 @@ enabled=1
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization
 EOF
+echo -e "\033[32m OK \033[0m"
 }
 
 check_user(){
   better_echo "\033[32m checking user.\033[0m"
   getent group  kube > /dev/null || groupadd -r kube
   getent passwd kube > /dev/null || useradd -r -g kube -s /sbin/nologin -d / kube
+  echo -e "\033[32m OK \033[0m"
 }
 
 install_docker(){
@@ -45,6 +48,7 @@ install_docker(){
   systemctl enable docker
   systemctl restart docker
   sleep 1
+  echo -e "\033[32m OK \033[0m"
 }
 
 install_etcd(){
@@ -53,6 +57,7 @@ install_etcd(){
   rm -rf /var/lib/etcd/*
   systemctl enable etcd
   systemctl restart etcd
+  echo -e "\033[32m OK \033[0m"
 }
 
 keygen_ca(){
@@ -62,6 +67,7 @@ keygen_ca(){
     openssl genrsa -out ca.key 4096
     openssl req -x509 -new -nodes -key ca.key -subj "/CN=k8s-cluster" -days 3650 -out ca.crt
   popd
+  echo -e "\033[32m OK \033[0m"
 }
 
 keygen_apiserver(){
@@ -93,6 +99,7 @@ EOF
     openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 \
       -extensions v3_req -extfile openssl.cnf -out apiserver.crt
   popd
+  echo -e "\033[32m OK \033[0m"
 }
 
 keygen_user(){
@@ -104,6 +111,7 @@ keygen_user(){
     openssl req -new -key $username.key -subj "/CN=$username" -out $username.csr
     openssl x509 -req -in $username.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 -out $username.crt
   popd
+  echo -e "\033[32m OK \033[0m"
 }
 
 keygen(){
@@ -127,6 +135,7 @@ kubeconfig_local_admin(){
   kubectl config set-context default-system --cluster=default-cluster --user=cluster-admin --namespace=default
   kubectl config use-context default-system
   kubectl completion bash > /etc/bash_completion.d/kubectl.bash
+  echo -e "\033[32m OK \033[0m"
 }
 
 kubeconfig_user(){
@@ -147,6 +156,7 @@ kubeconfig_user(){
   kubectl config set-credentials $username --client-certificate=$CLIENT_CERT --client-key=$CLIENT_KEY --embed-certs=true --token=$TOKEN
   kubectl config set-context default-system --cluster=default-cluster --user=$username
   kubectl config use-context default-system
+  echo -e "\033[32m OK \033[0m"
 }
 
 gen_kubeconfig(){
@@ -165,6 +175,7 @@ create_clusterrolebinding(){
   kubectl create clusterrolebinding mybonding-kube-scheduler --clusterrole=system:kube-scheduler --user=kube-scheduler
   kubectl create clusterrolebinding mybonding-volume-scheduler --clusterrole=system:volume-scheduler --user=kube-scheduler
   kubectl create clusterrolebinding mybonding-admin --clusterrole=cluster-admin --user=admin
+  echo -e "\033[32m OK \033[0m"
 }
 
 config_apiserver(){
@@ -175,6 +186,7 @@ config_apiserver(){
   systemctl enable kube-apiserver
   systemctl restart kube-apiserver
   sleep 5
+  echo -e "\033[32m OK \033[0m"
 }
 
 config_scheduler(){
@@ -184,6 +196,7 @@ config_scheduler(){
   systemctl daemon-reload
   systemctl enable kube-scheduler
   systemctl restart kube-scheduler
+  echo -e "\033[32m OK \033[0m"
 }
 
 config_controller_manager(){
@@ -193,6 +206,7 @@ config_controller_manager(){
   systemctl daemon-reload
   systemctl enable kube-controller-manager
   systemctl restart kube-controller-manager
+  echo -e "\033[32m OK \033[0m"
 }
 
 config_kubelet(){
@@ -217,6 +231,7 @@ EOF
     echo -e "\033[32m/etc/kubernetes/kubelet.yaml\033[0m"
     exit 1
   fi
+  echo -e "\033[32m OK \033[0m"
 }
 
 config_kube_proxy(){
@@ -234,6 +249,7 @@ config_kube_proxy(){
     echo -e "\033[32m/etc/kubernetes/kube-proxy.yaml\033[0m"
     exit 1
   fi
+  echo -e "\033[32m OK \033[0m"
 }
 
 clean_iptables_rules(){
@@ -264,6 +280,7 @@ cleanup(){
   rm -rf /usr/lib/systemd/system/kube*
   systemctl daemon-reload
   clean_iptables_rules
+  echo -e "\033[32m OK \033[0m"
 }
 
 # the end
