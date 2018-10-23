@@ -53,7 +53,7 @@ post_install_master(){
   kubectl get cs
   sleep 1
   echo -e "\033[32m show kubernetes nodes.\033[0m"
-  kubectl get nodes
+  kubectl get nodes -o wide
 
   # By default, your cluster will not schedule pods on the master for security reasons. 
   # If you want to be able to schedule pods on the master, 
