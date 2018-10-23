@@ -166,7 +166,8 @@ create_clusterrolebinding(){
   export KUBECONFIG=/root/.kube/config
   kubectl create clusterrolebinding mybonding-node --clusterrole=system:node --user=kubelet --group=system:node
   kubectl create clusterrolebinding mybonding-node-proxier --clusterrole=system:node-proxier --user=kube-proxy
-  kubectl create clusterrolebinding mybonding-scheduler --clusterrole=system:kube-scheduler --user=kube-scheduler
+  kubectl create clusterrolebinding mybonding-kube-scheduler --clusterrole=system:kube-scheduler --user=kube-scheduler
+  kubectl create clusterrolebinding mybonding-volume-scheduler --clusterrole=system:volume-scheduler --user=kube-scheduler
   kubectl create clusterrolebinding mybonding-admin --clusterrole=cluster-admin --user=admin
 }
 
