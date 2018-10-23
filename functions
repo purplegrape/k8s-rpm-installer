@@ -116,6 +116,7 @@ keygen(){
   keygen_ca
   keygen_apiserver
   keygen_user admin
+  keygen_user kube-scheduler
   keygen_user kubelet
   keygen_user kube-proxy
   #keygen_user etcd
@@ -155,6 +156,7 @@ kubeconfig_user(){
 gen_kubeconfig(){
   kubeconfig_local_admin
   kubeconfig_user admin
+  kubeconfig_user kube-scheduler
   kubeconfig_user kubelet
   kubeconfig_user kube-proxy
 }
@@ -164,6 +166,7 @@ create_clusterrolebinding(){
   export KUBECONFIG=/root/.kube/config
   kubectl create clusterrolebinding mybonding-node --clusterrole=system:node --user=kubelet --group=system:node
   kubectl create clusterrolebinding mybonding-node-proxier --clusterrole=system:node-proxier --user=kube-proxy
+  kubectl create clusterrolebinding mybonding-scheduler --clusterrole=system:kube-scheduler --user=kube-scheduler
   kubectl create clusterrolebinding mybonding-admin --clusterrole=cluster-admin --user=admin
 }
 
