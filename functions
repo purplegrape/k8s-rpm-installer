@@ -278,6 +278,8 @@ config_dashboard(){
   kubectl -n kube-system get secret
   kubectl -n kube-system describe secret kubernetes-dashboard-certs
   kubectl apply -f files/kubernetes-dashboard.yaml
+  kubectl -n kube-system get svc
+  kubectl -n kube-system get pods
 }
 
 cleanup(){
