@@ -12,4 +12,4 @@ KUBE_API_ARGS=" \
   --kubelet-client-certificate /etc/kubernetes/pki/kubelet.crt \
   --kubelet-client-key /etc/kubernetes/pki/kubelet.key \
   --logtostderr=true \
---v 0"
+  --v 0"
