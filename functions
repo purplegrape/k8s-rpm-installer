@@ -274,8 +274,9 @@ clean_iptables_rules(){
 config_dashboard(){
   mkdir -p /etc/kubernetes-dashboard/cert
   mv /etc/kubernetes/pki/dashboard* /etc/kubernetes-dashboard/cert/
-  kubectl create secret generic kubernetes-dashboard-certs --from-file=/etc/kubernetes-dashboard/cert -n kube-system
-  kubectl -n kube-system  get secret
+  kubectl -n kube-system create secret generic kubernetes-dashboard-certs --from-file=/etc/kubernetes-dashboard/cert 
+  kubectl -n kube-system get secret
+  kubectl -n kube-system describe secret kubernetes-dashboard-certs
   kubectl apply -f files/kubernetes-dashboard.yaml
 }
 
