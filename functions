@@ -124,6 +124,7 @@ keygen(){
   keygen_user kubelet
   keygen_user kube-proxy
   keygen_user etcd
+  keygen_user dashboard
 }
 
 kubeconfig_local_admin(){
