@@ -272,7 +272,10 @@ clean_iptables_rules(){
 }
 
 config_dashboard(){
-  kubectl create secret generic kubernetes-dashboard-certs --from-file=/etc/kubernetes/pki -n kube-system
+  mkdir -p /etc/kubernetes-dashboard/cert
+  mv /etc/kubernetes/pki/dashboard* /etc/kubernetes-dashboard/cert/
+  kubectl create secret generic kubernetes-dashboard-certs --from-file=/etc/kubernetes-dashboard/cert -n kube-system
+  kubectl -n kube-system  get secret
   kubectl apply -f files/kubernetes-dashboard.yaml
 }
 
